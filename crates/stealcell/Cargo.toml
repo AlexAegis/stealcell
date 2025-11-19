@@ -3,7 +3,7 @@ name = "stealcell"
 version = "0.1.0"
 description = "An Option like type that lets you temporarily remove a value from somewhere to retain mutable access on both."
 readme = "../../readme.md"
-publish = false
+publish = true
 
 edition.workspace = true
 homepage.workspace = true
