@@ -1,0 +1,310 @@
+# Documentation: https://github.com/sagiegurari/cargo-make
+env_files = [".env"]
+
+## Project dependencies
+
+[tasks.install-clippy]
+description = "Install rustup component clippy"
+workspace = false
+private = true
+install_crate = { rustup_component_name = "clippy" }
+
+[tasks.install-rustfmt]
+description = "Install rustup component rustfmt"
+workspace = false
+private = true
+install_crate = { rustup_component_name = "rustfmt" }
+
+[tasks.install-cocogitto]
+description = "Install the cocogitto crate to handle conventional commit messages"
+workspace = false
+private = true
+install_crate = { crate_name = "cocogitto", binary = "cog", test_arg = "--version" }
+
+[tasks.install-koji]
+condition = { env_not_set = ["NO_KOJI"] }
+description = "Install the koji crate to generate conventional commit messages"
+workspace = false
+private = true
+install_crate = { crate_name = "koji", binary = "koji", test_arg = "--version" }
+
+[tasks.install-mdbook]
+description = "Install the mdbook crate for building the documentation"
+workspace = false
+private = true
+dependencies = ["install-mdbook-mermaid"]
+install_crate = { crate_name = "mdbook", binary = "mdbook", test_arg = "--version" }
+
+[tasks.install-mdbook-mermaid]
+description = "Install the mdbook-mermaid crate for mermaid support"
+workspace = false
+private = true
+install_crate = { crate_name = "mdbook-mermaid", binary = "mdbook-mermaid", test_arg = "--version" }
+
+[tasks.install-cargo-expand]
+description = "Install the cargo-expand crate for expanding and inspecting proc macros"
+workspace = false
+private = true
+install_crate = { crate_name = "cargo-expand", binary = "cargo-expand", test_arg = "--version" }
+
+[tasks.install-tarpaulin]
+description = "Install the tarpaulin crate to generate code coverage results"
+workspace = false
+private = true
+install_crate = { crate_name = "cargo-tarpaulin", binary = "cargo-tarpaulin", test_arg = "--version" }
+
+[tasks.install-trunk]
+condition = { env_true = ["CARGO_REQUIRE_WEB_SUPPORT"] }
+description = "Install the trunk crate for WASM support"
+workspace = false
+private = true
+install_crate = { crate_name = "trunk", binary = "trunk", test_arg = "--version" }
+
+[tasks.install-target-wasm]
+condition = { env_true = ["CARGO_REQUIRE_WEB_SUPPORT"] }
+description = "Adds the wasm32 target"
+workspace = false
+private = true
+command = "rustup"
+args = ["target", "add", "wasm32-unknown-unknown"]
+
+[tasks.install-web-support]
+condition = { env_true = ["CARGO_REQUIRE_WEB_SUPPORT"] }
+description = "Installs everything to be able to build for the web"
+workspace = false
+dependencies = ["install-target-wasm", "install-trunk"]
+
+# All hooks are shell scripts
+[tasks.enable-git-hooks]
+condition = { platforms = [
+    "linux",
+    "mac",
+], fail_message = "Git hooks are not available for Windows! Use a proper OS." }
+description = "Enable git hooks by setting the hooksPath to scripts/hooks"
+workspace = false
+command = "git"
+args = ["config", "core.hooksPath", "scripts/hooks"]
+
+[tasks.install-git-lfs]
+condition = { env_true = ["CARGO_REQUIRE_GIT_LFS"] }
+description = "Makes sure the git lfs hooks are enabled in the repository"
+private = false
+workspace = false
+dependencies = ["enable-git-hooks"]
+command = "git"
+args = ["lfs", "install", "--force"]
+
+## Tasks
+
+[tasks.book-build]
+description = "Builds the book for the workspace."
+workspace = false
+dependencies = ["install-mdbook"]
+command = "mdbook"
+args = ["build"]
+
+[tasks.book-serve]
+description = "Serves the book for editing"
+workspace = false
+dependencies = ["install-mdbook"]
+command = "mdbook"
+args = ["serve"]
+
+[tasks.lint-clippy]
+description = "Lints the entire workspace"
+workspace = false
+dependencies = ["install-clippy"]
+command = "cargo"
+args = [
+    "clippy",
+    "--locked",
+    "--workspace",
+    "--all-targets",
+    "--all-features",
+    "--",
+    "-D",
+    "warnings",
+]
+
+[tasks.lint-format]
+description = "Format checks the entire workspace"
+workspace = false
+dependencies = ["install-rustfmt"]
+command = "cargo"
+args = ["fmt", "--all", "--", "--check"]
+
+[tasks.format]
+description = "Formats the entire workspace"
+workspace = false
+dependencies = ["install-rustfmt"]
+command = "cargo"
+args = ["fmt", "--all", "--", "--emit=files"]
+
+[tasks.each-format]
+description = "Formats each project"
+dependencies = ["install-rustfmt"]
+command = "cargo"
+args = ["fmt", "--", "--emit=files"]
+
+[tasks.clean]
+description = "Cleans the workspace"
+workspace = false
+command = "cargo"
+args = ["clean"]
+
+[tasks.build]
+description = "Builds the entire workspace"
+workspace = false
+category = "Build"
+dependencies = ["setup"]
+command = "cargo"
+args = ["build", "--workspace", "--all-targets", "--all-features"]
+
+[tasks.build-benchmark]
+description = "Builds the entire workspace with timings enabled"
+workspace = false
+category = "Build"
+dependencies = ["setup"]
+command = "cargo"
+args = ["build", "--workspace", "--all-targets", "--all-features", "--timings"]
+
+[tasks.each-build]
+description = "Build individual projects"
+category = "Build"
+dependencies = ["setup"]
+command = "cargo"
+args = ["build", "--all-targets", "--all-features"]
+
+[tasks.test]
+description = "Tests the entire workspace"
+workspace = false
+dependencies = ["setup"]
+command = "cargo"
+args = ["test", "--workspace", "--all-features"]
+
+[tasks.each-test]
+description = "Tests individual projects"
+dependencies = ["setup"]
+command = "cargo"
+args = ["test", "--all-features"]
+
+[tasks.test-pre-build]
+description = "Pre builds the tests without running them"
+workspace = false
+command = "cargo"
+args = [
+    "test",
+    "--no-run",
+    "--locked",
+    "--workspace",
+    "--all-targets",
+    "--all-features",
+]
+
+[tasks.test-coverage]
+description = "Tests the entire workspace with tarpaulin for coverage"
+workspace = false
+dependencies = ["setup"]
+command = "cargo"
+args = [
+    "tarpaulin",
+    "--workspace",
+    "--engine",
+    "llvm",
+    "--timeout",
+    "120",
+    "--out",
+    "xml",
+    "lcov",
+    "html",
+    "--skip-clean",
+    "--target-dir",
+    "target/tarpaulin",
+    "--output-dir",
+    "target/coverage",
+    "--no-default-features",
+    "--features",
+    "test",
+]
+
+[tasks.validate-codecov-yml]
+description = "Validates the codecov yml file. Only needed if the codecov.yml file is changed."
+workspace = false
+command = "curl"
+args = [
+    "-X",
+    "POST",
+    "--data-binary",
+    "@codecov.yml",
+    "https://codecov.io/validate",
+]
+
+[tasks.test-ci-run]
+description = "Tests the entire workspace"
+workspace = false
+command = "cargo"
+args = [
+    "test",
+    "--locked",
+    "--workspace",
+    "--all-targets",
+    "--all-features",
+    "--",
+    "--nocapture",
+]
+
+## Miscellaneous
+
+[tasks.print-env]
+description = "Print the environment"
+workspace = false
+command = "env"
+
+## Scripts
+
+[tasks.script-link-assets]
+condition = { files_exist = ["scripts/link_assets.sh"] }
+description = "Run script link_assets.sh"
+workspace = false
+script = { file = "scripts/link_assets.sh" }
+
+## Flows
+
+[tasks.setup]
+description = "Prepares the workspace for development"
+workspace = false
+dependencies = [
+    "enable-git-hooks",
+    "install-cocogitto",
+    "install-koji",
+    "install-git-lfs",
+    "install-clippy",
+    "install-rustfmt",
+    "install-mdbook",
+    "install-cargo-expand",
+    "install-tarpaulin",
+    "install-web-support",
+    "script-link-assets",
+]
+
+[tasks.lint]
+description = "Run clippy and format checking in parallel"
+workspace = false
+run_task = { name = ["lint-format", "lint-clippy"], parallel = true }
+
+[tasks.all]
+description = "Run every task"
+workspace = false
+dependencies = ["setup", "format", "build", "lint", "book-build", "test"]
+
+## Git hooks
+
+[tasks.pre-commit]
+description = "Executed by the pre-commit hook."
+workspace = false
+dependencies = ["lint"]
+
+[tasks.pre-push]
+description = "Executed by the pre-push hook."
+workspace = false
+dependencies = ["test"]

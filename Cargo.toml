@@ -1,0 +1,26 @@
+[workspace]
+resolver = "3"
+members = ["crates/*"]
+default-members = ["crates/stealcell"]
+
+[workspace.package]
+edition = "2024"
+homepage = "https://github.com/AlexAegis/stealcell"
+repository = "https://github.com/AlexAegis/stealcell"
+documentation = "https://github.com/AlexAegis/stealcell"
+authors = ["alexaegis"]
+license = "MIT"
+readme = "readme.md"
+
+
+[workspace.lints.clippy]
+type_complexity = "allow"
+
+[profile.dev]
+opt-level = 1
+
+[profile.dev.package."*"]
+opt-level = 3
+
+[workspace.dependencies]
+stealcell = { path = "crates/stealcell" }
