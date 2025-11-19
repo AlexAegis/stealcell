@@ -5,7 +5,10 @@ use std::ops::{Deref, DerefMut};
 
 const ALREADY_STOLEN: &str = "value already stolen from:";
 
-/// Allows you to "steal" its value, taking complete ownership over it, and
+/// An Option like type that lets you temporarily remove a value from somewhere
+/// to retain mutable access on both.
+///
+/// It allows you to "steal" its value, taking complete ownership over it, and
 /// you must pinky-promise to return it. Non-returned values will panic if
 /// dropped!
 pub struct StealCell<T> {
@@ -99,6 +102,12 @@ impl<T> StealCell<T> {
 impl<T> Stolen<T> {
 	/// PANIC SAFETY: The stored value can only be `None` by giving ownership
 	/// away and returning it to the `StealCell`.
+	pub fn get(&mut self) -> &T {
+		self.value.as_ref().unwrap()
+	}
+
+	/// PANIC SAFETY: The stored value can only be `None` by giving ownership
+	/// away and returning it to the `StealCell`.
 	pub fn get_mut(&mut self) -> &mut T {
 		self.value.as_mut().unwrap()
 	}
@@ -129,5 +138,34 @@ impl<T> Drop for Stolen<T> {
 		if self.value.is_some() {
 			panic!("You've lost a stolen value without returning it first!");
 		}
+	}
+}
+
+#[cfg(test)]
+mod test {
+	use crate::StealCell;
+
+	struct Thing {
+		value: usize,
+	}
+
+	struct World {
+		thing: StealCell<Thing>,
+	}
+
+	#[test]
+	fn it_does_its_job() {
+		let mut world = World {
+			thing: StealCell::new(Thing { value: 1 }),
+		};
+		assert!(!world.thing.is_stolen());
+		let mut stolen_thing = world.thing.steal();
+		assert!(world.thing.is_stolen());
+		assert_eq!(stolen_thing.get().value, 1);
+		assert_eq!(stolen_thing.get_mut().value, 1);
+		world.thing.return_stolen(stolen_thing);
+		assert_eq!(world.thing.get().value, 1);
+		assert_eq!(world.thing.get_mut().value, 1);
+		assert!(!world.thing.is_stolen());
 	}
 }
