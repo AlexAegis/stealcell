@@ -1,7 +1,7 @@
 [package]
 name = "stealcell"
 version = "0.1.0"
-description = "An Option like cell where the value can be temporarily stolen."
+description = "An Option like type that lets you temporarily remove a value from somewhere to retain mutable access on both."
 readme = "../../readme.md"
 publish = false
 
@@ -17,6 +17,7 @@ workspace = true
 
 [features]
 default = []
+test = []
 no_std = []
 
 [dependencies]

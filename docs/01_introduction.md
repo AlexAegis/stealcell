@@ -1,1 +1,2 @@
-# Usage
+<!-- markdownlint-disable -->
+{{#include ../readme.md}}

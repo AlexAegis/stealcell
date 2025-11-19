@@ -3,6 +3,9 @@
 [![crates.io](https://img.shields.io/crates/v/stealcell.svg)](https://crates.io/crates/stealcell)
 [![ci](https://github.com/AlexAegis/stealcell/actions/workflows/ci.yml/badge.svg)](https://github.com/AlexAegis/stealcell/actions/workflows/ci.yml)
 
+An Option like type that lets you temporarily remove a value from somewhere to
+retain mutable access on both.
+
 ## Example & Usage
 
 ```sh
