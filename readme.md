@@ -2,6 +2,7 @@
 
 [![crates.io](https://img.shields.io/crates/v/stealcell.svg)](https://crates.io/crates/stealcell)
 [![ci](https://github.com/AlexAegis/stealcell/actions/workflows/ci.yml/badge.svg)](https://github.com/AlexAegis/stealcell/actions/workflows/ci.yml)
+[![codecov](https://codecov.io/github/AlexAegis/stealcell/graph/badge.svg?token=w1UtRLE5cc)](https://codecov.io/github/AlexAegis/stealcell)
 
 An Option like type that lets you temporarily remove a value from somewhere to
 retain mutable access on both.
