@@ -12,14 +12,10 @@ git_release_enable = true
 
 [changelog]
 commit_parsers = [
-  { message = "^.*: add", group = "added" },
-  { message = "^.*: support", group = "added" },
-  { message = "^.*: remove", group = "removed" },
-  { message = "^.*: delete", group = "removed" },
-  { message = "^test", group = "fixed" },
+  { message = "^feat", group = "added" },
+  { message = "^refactor", group = "changed" },
   { message = "^fix", group = "fixed" },
-  { message = "^.*: fix", group = "fixed" },
-  { message = "^.*", group = "changed" },
+  { message = "^perf", group = "performance" },
 ]
 body = """
 
