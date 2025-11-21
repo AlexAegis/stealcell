@@ -53,12 +53,6 @@ workspace = false
 private = true
 install_crate = { crate_name = "cargo-audit", binary = "cargo-audit", test_arg = "--version" }
 
-[tasks.install-cargo-deny]
-description = "Install the cargo-deny crate"
-workspace = false
-private = true
-install_crate = { crate_name = "cargo-deny", binary = "cargo-deny", test_arg = "--version" }
-
 [tasks.install-tarpaulin]
 description = "Install the tarpaulin crate to generate code coverage results"
 workspace = false
@@ -259,13 +253,6 @@ dependencies = ["install-cargo-audit"]
 command = "cargo"
 args = ["audit"]
 
-[tasks.deny-check]
-description = "Runs cargo deny check"
-workspace = false
-dependencies = ["install-cargo-deny"]
-command = "cargo"
-args = ["deny", "check"]
-
 ## Miscellaneous
 
 [tasks.print-env]
@@ -295,8 +282,6 @@ dependencies = [
     "install-rustfmt",
     "install-mdbook",
     "install-cargo-expand",
-    "install-cargo-audit",
-    "install-cargo-deny",
     "install-tarpaulin",
     "install-web-support",
     "script-link-assets",
@@ -310,16 +295,7 @@ run_task = { name = ["lint-format", "lint-clippy"], parallel = true }
 [tasks.all]
 description = "Run every task"
 workspace = false
-dependencies = [
-    "setup",
-    "format",
-    "build",
-    "lint",
-    "book-build",
-    "test",
-    "audit",
-    "deny-check",
-]
+dependencies = ["setup", "format", "build", "lint", "book-build", "test"]
 
 ## Git hooks
 

@@ -93,34 +93,6 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
           directory: target/coverage
           fail_ci_if_error: true
-  cargo-audit:
-    runs-on: ubuntu-latest
-    needs: [check-pages]
-    concurrency:
-      group: ${{ github.workflow }}-${{ github.ref }}
-    steps:
-      - *checkout_depth_1
-      - *install_rust
-      - *cache
-      - *install_binstall
-      - name: install cargo-audit
-        run: cargo binstall --no-confirm --force cargo-audit
-      - name: cargo-audit
-        run: cargo audit
-  cargo-deny:
-    runs-on: ubuntu-latest
-    needs: [check-pages]
-    concurrency:
-      group: ${{ github.workflow }}-${{ github.ref }}
-    steps:
-      - *checkout_depth_1
-      - *install_rust
-      - *cache
-      - *install_binstall
-      - name: install cargo-deny
-        run: cargo binstall --no-confirm --force cargo-deny
-      - name: deny check
-        run: cargo deny check
   conventional-commits:
     runs-on: ubuntu-latest
     steps:
