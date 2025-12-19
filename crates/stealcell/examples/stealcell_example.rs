@@ -22,7 +22,7 @@ fn main() {
 		thing: StealCell::new(Thing { value: 1 }),
 	};
 	let mut stolen_thing = world.thing.steal();
-	stolen_thing.get_mut().hello_world(&mut world); // `.get_mut()` only needed with `no_std`
+	stolen_thing.as_mut().hello_world(&mut world); // `.get_mut()` only needed with `no_std`
 	// If you skip this and let the stolen value drop, you get a panic!
 	world.thing.return_stolen(stolen_thing);
 }
