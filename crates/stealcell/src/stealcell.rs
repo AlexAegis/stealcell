@@ -11,8 +11,24 @@ const ALREADY_STOLEN: &str = "value already stolen from:";
 /// It allows you to "steal" its value, taking complete ownership over it, and
 /// you must pinky-promise to return it. Non-returned values will panic if
 /// dropped!
+///
+/// The `Default` implementation defaults to `Some(T)` if `T` is `Default`,
+/// as the base assumption of StealCell that there is something in it, unless
+/// it was explicitly stolen.
+#[derive(PartialEq, Eq, Debug)]
 pub struct StealCell<T> {
 	value: Option<T>,
+}
+
+impl<T> Default for StealCell<T>
+where
+	T: Default,
+{
+	fn default() -> Self {
+		Self {
+			value: Some(T::default()),
+		}
+	}
 }
 
 /// A value stolen from a [StealCell]. If you accidentally drop it before
